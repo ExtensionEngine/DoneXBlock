@@ -1,12 +1,40 @@
-<div class="done_onoffswitch_wrapper">
-  <div class="done_left_spacer"></div>
-  <div class="done_onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="done_onoffswitch-checkbox" id="{id}_myonoffswitch" checked="{done}">  </input>
-    <label class="done_onoffswitch-label" for="{id}_myonoffswitch">
-        <span class="done_aria_hidden">I have completed this</span>
-        <span class="done_onoffswitch-inner"></span>
-        <span class="done_onoffswitch-switch"></span>
-    </label>
-  </div>
-  <div class="done_right_spacer"></div>
+{% if display_type == 'helpful' %}
+<div>
+    <p>Was this helpful?</p>
+    <span class="done-radio">
+        <input type="radio" name="helpful" id="{id}_helpful_yes" value="true"
+            {% if helpful %}
+            checked
+            {% endif %}
+        />
+        <label for="{id}_helpful_yes">
+            <i class="fa fa-thumbs-o-up"></i>
+            Yes
+        </label>
+    </span>
+    <span class="done-radio">
+        <input type="radio" name="helpful" id="{id}_helpful_no" value="false"
+            {% if helpful == False %}
+                checked
+            {% endif %}
+        />
+        <label for="{id}_helpful_no">
+            <i class="fa fa-thumbs-o-down"></i>
+            No
+        </label>
+    </span>
 </div>
+{% else %}
+    <div class="done_onoffswitch_wrapper">
+        <div class="done_left_spacer"></div>
+            <div class="done_onoffswitch">
+                <input type="checkbox" name="onoffswitch" class="done_onoffswitch-checkbox" id="{id}_myonoffswitch" checked="{done}" />
+                <label class="done_onoffswitch-label" for="{id}_myonoffswitch">
+                    <span class="done_aria_hidden">I have completed this</span>
+                    <span class="done_onoffswitch-inner"></span>
+                    <span class="done_onoffswitch-switch"></span>
+                </label>
+            </div>
+        <div class="done_right_spacer"></div>
+    </div>
+{% endif %}

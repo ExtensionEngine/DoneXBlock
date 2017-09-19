@@ -1,16 +1,34 @@
-<div>
-  <p> This is a very simple component with no configuration
-  options. It is used for helping student keep track of what
-  portion of a course they've completed. For example, you might
-  place this underneath each text and video component, and students
-  can see in their progress page which portions are completed and 
-  which still need to be watched or read.</p>
-
-  <p>It is also helpful to give students a way to sign off on having
-  completed something. They are less likely to skip material that
-  way.</p>
-
-  <p> <small> (If you're a real power-user, in OLX, we do allow you to
-    add an align tag, which can left-, center-, or right-justify the
-    XBlock) </small> </p>
-</div>
+<div class="wrapper-comp-settings is-active editor-with-buttons" id="settings-tab" >
+  <ul class="list-input settings-list" >
+      <li class="field comp-setting-entry is-set" >
+          <div class="wrapper-comp-setting" >
+              <label class="label setting-label" for="display_type">Display Type</label >
+              <select name="display_type" id="display_type">
+                <option value="helpful"
+                  {% if display_type == 'helpful' %}
+                    selected
+                  {% endif %}
+                >
+                  Was this helpful?</option>
+                <option value="done"
+                  {% if display_type == 'done' %}
+                    selected
+                  {% endif %}
+                >
+                  Mark as done
+                </option>
+              </select>
+          </div >
+      </li >
+  </ul>
+  <div class="xblock-actions" >
+      <ul >
+          <li class="action-item" >
+              <a href="#" class="button action-primary save-button" >Save</a >
+          </li >
+          <li class="action-item" >
+              <a href="#" class="button cancel-button" >Cancel</a >
+          </li >
+      </ul >
+  </div >
+</div >

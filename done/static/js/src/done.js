@@ -40,6 +40,16 @@ function DoneXBlock(runtime, element, data) {
 	    });
 	    Logger.log("edx.done.toggled", {'done': checked});
 	    update_knob(element, data);
-	});
+    });
+    $('.done-radio input[type=radio]').on('change', function(event) {
+        var checked = event.target.checked;
+        if(checked) {
+            $.ajax({
+                type: "POST",
+                url: handlerUrl,
+                data: JSON.stringify({'helpful': event.target.value})
+            });
+        }
+    });
     });
 }

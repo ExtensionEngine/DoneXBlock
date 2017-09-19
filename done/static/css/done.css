@@ -58,7 +58,7 @@
 
 .done_animated .done_onoffswitch-switch {
     -moz-transition: all 0.1s ease-in 0s; -webkit-transition: all 0.1s ease-in 0s;
-    -o-transition: all 0.1s ease-in 0s; transition: all 0.1s ease-in 0s; 
+    -o-transition: all 0.1s ease-in 0s; transition: all 0.1s ease-in 0s;
 }
 
 .done_onoffswitch-switch {
@@ -77,7 +77,7 @@
 }
 
 .done_onoffswitch-checkbox:checked + .done_onoffswitch-label .done_onoffswitch-switch {
-    right: 0px; 
+    right: 0px;
 }
 
 .done-checked {
@@ -118,4 +118,12 @@ body.rtl .done_onoffswitch-inner:after {
     padding-left: 22px;
     float: left;
     text-align: left;
+}
+
+.done-radio {
+    margin-right: 1.5rem;
+}
+
+input[type=radio] {
+    vertical-align: middle;
 }

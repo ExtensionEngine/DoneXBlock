@@ -2,10 +2,11 @@
 
 import pkg_resources
 import uuid
-
+from django.template import Context, Template
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Boolean, DateTime, Float
 from xblock.fragment import Fragment
+from webob.response import Response
 
 def resource_string(path):
     """Handy helper for getting resources from our kit."""
@@ -22,6 +23,17 @@ class DoneXBlock(XBlock):
         scope=Scope.user_state,
         help="Is the student done?",
         default=False
+    )
+
+    helpful = Boolean(
+        scope=Scope.user_state,
+        help="Was the unit helpful?"
+    )
+
+    display_type = String(
+        scope=Scope.settings,
+        help="Toggle student view.",
+        default='helpful'
     )
 
     align = String(
@@ -52,16 +64,34 @@ class DoneXBlock(XBlock):
             # is finished for XBlocks.
             self.runtime.publish(self, "edx.done.toggled", {'done': self.done})
 
-        return {'state': self.done}
+        if 'helpful' in data:
+            self.helpful = data['helpful']
+            if data['helpful']:
+                grade = 1
+            else:
+                grade = 0
+            grade_event = {'value': grade, 'max_value': 1}
+            self.runtime.publish(self, 'grade', grade_event)
+            # This should move to self.runtime.publish, once that pipeline
+            # is finished for XBlocks.
+            self.runtime.publish(self, "edx.done.toggled", {'done': self.done, 'helpful': self.helpful})
+
+
+        return {'state': {'done': self.done, 'helpful': self.helpful}}
 
     def student_view(self, context=None):  # pylint: disable=unused-argument
         """
         The primary view of the DoneXBlock, shown to students
         when viewing courses.
         """
-        html_resource = resource_string("static/html/done.html")
-        html = html_resource.format(done=self.done,
-                                    id=uuid.uuid1(0))
+        context = {
+            'done': self.done,
+            'helpful': self.helpful,
+            'id': uuid.uuid1(0),
+            'display_type': self.display_type
+        }
+        html = self.render_template('static/html/done.html', context)
+
         (unchecked_png, checked_png) = (
             self.runtime.local_resource_url(self, x) for x in
             ('public/check-empty.png', 'public/check-full.png')
@@ -80,9 +110,29 @@ class DoneXBlock(XBlock):
         '''
         Minimal view with no configuration options giving some help text.
         '''
-        html = resource_string("static/html/studioview.html")
+        context = {
+            'display_type': self.display_type
+        }
+        html = self.render_template('static/html/studioview.html', context)
+
         frag = Fragment(html)
+
+        js_str = pkg_resources.resource_string(__name__, "static/js/src/studio_edit.js")
+        frag.add_javascript(unicode(js_str))
+        frag.initialize_js('StudioEdit')
+
         return frag
+
+    @XBlock.handler
+    def studio_submit(self, request, suffix=''):
+        """
+        Called when submitting the form in Studio.
+        """
+        self.display_type = request.POST['display_type']
+
+        return Response(json_body={
+            'result': "success"
+        })
 
     @staticmethod
     def workbench_scenarios():
@@ -96,6 +146,23 @@ class DoneXBlock(XBlock):
                 </vertical_demo>
              """),
         ]
+
+
+    def load_resource(self, resource_path):
+        """
+        Gets the content of a resource
+        """
+        resource_content = pkg_resources.resource_string(__name__, resource_path)
+        return unicode(resource_content.decode('utf-8'))
+
+
+    def render_template(self, template_path, context={}):
+        """
+        Evaluate a template by resource path, applying the provided context
+        """
+        template_str = self.load_resource(template_path)
+
+        return Template(template_str).render(Context(context))
 
     # Everything below is stolen from
     # https://github.com/edx/edx-ora2/blob/master/apps/openassessment/
