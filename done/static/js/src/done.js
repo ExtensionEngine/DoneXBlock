@@ -34,10 +34,9 @@ function DoneXBlock(runtime, element, data) {
 	$('.done_onoffswitch-checkbox', element).change(function(){
 	    var checked = $('.done_onoffswitch-checkbox', element).prop("checked");
 	    $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            data: JSON.stringify({'done':checked}),
-            success: function() { window.location.reload() }
+		type: "POST",
+		url: handlerUrl,
+		data: JSON.stringify({'done':checked})
 	    });
 	    Logger.log("edx.done.toggled", {'done': checked});
 	    update_knob(element, data);
@@ -48,8 +47,7 @@ function DoneXBlock(runtime, element, data) {
             $.ajax({
                 type: "POST",
                 url: handlerUrl,
-                data: JSON.stringify({'helpful': event.target.value}),
-                success: function() { window.location.reload() }
+                data: JSON.stringify({'helpful': event.target.value})
             });
         }
     });
