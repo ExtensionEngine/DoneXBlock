@@ -16,8 +16,25 @@ function update_knob(element, data) {
   }
 }
 
+function addCheckIcon($element) {
+    var icon = '<i class="fa fa-check-circle"></i>';
+    $element.empty()
+            .append(icon);
+}
+
+
 function DoneXBlock(runtime, element, data) {
-    $('.done_onoffswitch-checkbox', element).prop("checked", data.state);
+    // Updating the xblock state every time it's initialized.
+    $.ajax({
+        url: runtime.handlerUrl(element, 'get_state'),
+        method: 'GET',
+        success: function (data) {
+            $('.done_onoffswitch-checkbox', element).prop("checked", data.state);
+            if (data.helpful != null) {
+                $('.done-radio input[value="' + data.helpful + '"]', element).prop('checked', true);
+            }
+        }
+    });
 
     if (data.align != "right") {
 	$('.done_right_spacer', element).addClass("done_grow");
@@ -32,22 +49,30 @@ function DoneXBlock(runtime, element, data) {
     $(function ($) {
 	$('.done_onoffswitch', element).addClass("done_animated");
 	$('.done_onoffswitch-checkbox', element).change(function(){
-	    var checked = $('.done_onoffswitch-checkbox', element).prop("checked");
+	    var isChecked = $('.done_onoffswitch-checkbox', element).prop("checked");
 	    $.ajax({
-		type: "POST",
-		url: handlerUrl,
-		data: JSON.stringify({'done':checked})
+            type: "POST",
+            url: handlerUrl,
+            data: JSON.stringify({'done':isChecked}),
+            success: function() {
+                var $element = $('.menu-item.active .accordion-nav .icon-container');
+                isChecked ? addCheckIcon($element) : $element.empty();
+            }
 	    });
-	    Logger.log("edx.done.toggled", {'done': checked});
+	    Logger.log("edx.done.toggled", {'done': isChecked});
 	    update_knob(element, data);
     });
     $('.done-radio input[type=radio]').on('change', function(event) {
-        var checked = event.target.checked;
-        if(checked) {
+        var isChecked = event.target.checked;
+        if(isChecked) {
             $.ajax({
                 type: "POST",
                 url: handlerUrl,
-                data: JSON.stringify({'helpful': event.target.value})
+                data: JSON.stringify({'helpful': event.target.value}),
+                success: function() {
+                    var $element = $('.accordion-unit.active .icon-container');
+                    addCheckIcon($element);
+                }
             });
         }
     });

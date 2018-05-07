@@ -1,7 +1,9 @@
 """ Show a toggle which lets students mark things as done."""
 
+import json
 import pkg_resources
 import uuid
+
 from django.template import Context, Template
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Boolean, DateTime, Float
@@ -18,7 +20,6 @@ class DoneXBlock(XBlock):
     """
     Show a toggle which lets students mark things as done.
     """
-
     done = Boolean(
         scope=Scope.user_state,
         help="Is the student done?",
@@ -76,8 +77,14 @@ class DoneXBlock(XBlock):
             # is finished for XBlocks.
             self.runtime.publish(self, "edx.done.toggled", {'done': self.done, 'helpful': self.helpful})
 
-
         return {'state': {'done': self.done, 'helpful': self.helpful}}
+
+    @XBlock.handler
+    def get_state(self, *args, **kwargs):
+        return Response(body=json.dumps({
+            'state': self.done,
+            'helpful': self.helpful,
+        }))
 
     def student_view(self, context=None):  # pylint: disable=unused-argument
         """
